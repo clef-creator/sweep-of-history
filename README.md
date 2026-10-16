@@ -13,10 +13,7 @@ The SQL enables Row Level Security and permits anonymous INSERT only. It does no
 
 ## 2. Configure the app
 
-In Supabase, copy the **Project URL** and **publishable key** (usually begins with `sb_publishable_`). In `index.html`, replace:
-
-- `PASTE_SUPABASE_PROJECT_URL_HERE`
-- `PASTE_SUPABASE_PUBLISHABLE_KEY_HERE`
+In Supabase, copy the **Project URL** and **publishable key** (usually begins with `sb_publishable_`). The app's `index.html` is already configured with this project's Project URL and publishable key. If you fork or reuse the demo for another project, replace:
 
 A publishable key is intended for browser use. **Never place a Supabase secret key or service-role key in frontend code.** Database access is controlled by grants and RLS policies.
 
