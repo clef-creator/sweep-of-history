@@ -1,0 +1,113 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#f7f5f0">
+  <title>Feedback Loop | Workshop Demo</title>
+  <style>
+    :root{color-scheme:light;--ink:#1f2933;--muted:#5d6874;--line:#dfe3e6;--paper:#fff;--bg:#f7f5f0;--accent:#284f48;--accentHover:#1c3e38;--soft:#e8f0ec}
+    *{box-sizing:border-box}body{margin:0;min-height:100vh;background:var(--bg);color:var(--ink);font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;display:grid;place-items:center;padding:28px 16px}
+    main{width:min(100%,920px)}.eyebrow{color:var(--accent);font-size:.78rem;font-weight:750;letter-spacing:.13em;text-transform:uppercase;margin:0 0 14px}
+    h1{font-size:clamp(2.25rem,7vw,4rem);letter-spacing:-.055em;line-height:1.02;margin:0;font-weight:760;max-width:750px}
+    .lede{color:var(--muted);font-size:1.08rem;line-height:1.65;max-width:62ch;margin:18px 0 30px}
+    .layout{display:grid;grid-template-columns:minmax(0,1.2fr) minmax(250px,.8fr);gap:18px;align-items:start}
+    .panel{background:var(--paper);border:1px solid var(--line);border-radius:22px;padding:clamp(22px,5vw,34px);box-shadow:0 16px 50px rgba(31,41,51,.06)}
+    h2{font-size:1.25rem;letter-spacing:-.025em;margin:0 0 7px}.sub{color:var(--muted);font-size:.92rem;line-height:1.6;margin:0 0 24px}
+    label{display:block;font-size:.94rem;font-weight:700;margin-bottom:10px}textarea{display:block;width:100%;min-height:165px;resize:vertical;border:1px solid #bfc8cc;border-radius:12px;padding:14px 15px;font:inherit;line-height:1.5;color:var(--ink);background:#fff}
+    textarea:focus{outline:3px solid rgba(40,79,72,.16);border-color:var(--accent)}.hint{display:flex;justify-content:space-between;gap:12px;color:var(--muted);font-size:.82rem;margin-top:8px}
+    button{border:0;border-radius:999px;background:var(--accent);color:#fff;padding:13px 20px;font:inherit;font-weight:700;cursor:pointer;margin-top:22px;width:100%}button:hover:not(:disabled){background:var(--accentHover)}button:disabled{opacity:.6;cursor:wait}
+    #status{min-height:1.5em;margin:16px 0 0;font-size:.94rem;line-height:1.5;overflow-wrap:anywhere}#status.success{color:#216e4a}#status.error{color:#a12b2b}
+    .side{background:var(--soft)}.side p{color:var(--muted);font-size:.9rem;line-height:1.7}.step{display:flex;gap:11px;margin-top:18px;align-items:flex-start}.num{flex:0 0 28px;height:28px;display:grid;place-items:center;border-radius:9px;background:white;color:var(--accent);font-size:.78rem;font-weight:800}.step strong{display:block;margin-bottom:2px;font-size:.9rem}.step span{color:var(--muted);font-size:.83rem;line-height:1.5}
+    .note{margin:18px 2px 0;color:var(--muted);font-size:.82rem;line-height:1.55}footer{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;margin:18px 2px 0;color:var(--muted);font-size:.78rem}
+    @media(max-width:680px){body{padding:18px 12px}.layout{grid-template-columns:1fr}.panel{border-radius:17px}.lede{font-size:1rem}.hint{flex-direction:column;gap:4px}}
+  </style>
+</head>
+<body>
+  <main>
+    <p class="eyebrow">A tiny full-stack demo</p>
+    <h1>Help us make it better.</h1>
+    <p class="lede">Share one thing that worked well, something that felt confusing, or an idea that would improve the experience. This form saves your message to a Supabase database.</p>
+    <div class="layout">
+      <section class="panel" aria-labelledby="form-title">
+        <form id="feedback-form">
+          <h2 id="form-title">Share your feedback</h2>
+          <p class="sub">A short message is enough. Please do not include personal or sensitive information.</p>
+          <label for="message">Your feedback</label>
+          <textarea id="message" name="message" minlength="5" maxlength="1000" placeholder="I think this app could be better if…" required></textarea>
+          <div class="hint"><span>Anonymous submission</span><span id="counter">0 / 1000</span></div>
+          <button id="submit-button" type="submit">Send feedback ↗</button>
+          <p id="status" role="status" aria-live="polite"></p>
+        </form>
+      </section>
+      <aside class="panel side">
+        <p class="eyebrow">How it works</p>
+        <h2>From form to database</h2>
+        <p>The browser sends the message to Supabase. Submitted messages can be reviewed in the Supabase dashboard but are not publicly readable through this app.</p>
+        <div class="step"><span class="num">1</span><div><strong>Write</strong><span>Enter a short message in the form.</span></div></div>
+        <div class="step"><span class="num">2</span><div><strong>Submit</strong><span>The app sends the message to Supabase.</span></div></div>
+        <div class="step"><span class="num">3</span><div><strong>Verify</strong><span>Check the feedback table for the saved record.</span></div></div>
+      </aside>
+    </div>
+    <p class="note">Workshop prototype only. The public form can be spammed; do not use it for confidential or sensitive information.</p>
+    <footer><span>Feedback Loop · Workshop demo</span><span>HTML · GitHub · Vercel · Supabase</span></footer>
+  </main>
+  <script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
+
+    // Replace these placeholders with your Supabase Project URL and publishable key.
+    // Never put a Supabase secret or service-role key in browser code.
+    const SUPABASE_URL = 'https://cbvaouhameozfulmvtyv.supabase.co';
+    const SUPABASE_PUBLISHABLE_KEY = 'sb_publishable_xwoPz8Z5i_p3u6rLX2giJA_o0R_XfhT';
+
+    const form = document.querySelector('#feedback-form');
+    const textarea = document.querySelector('#message');
+    const counter = document.querySelector('#counter');
+    const status = document.querySelector('#status');
+    const button = document.querySelector('#submit-button');
+    const configured = !SUPABASE_URL.includes('PASTE_') && !SUPABASE_PUBLISHABLE_KEY.includes('PASTE_');
+    const supabase = configured ? createClient(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY) : null;
+
+    textarea.addEventListener('input', () => { counter.textContent = textarea.value.length + ' / 1000'; });
+    if (!configured) {
+      status.className = 'error';
+      status.textContent = 'Setup needed: add your Supabase Project URL and publishable key to index.html, then redeploy.';
+      button.disabled = true;
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const message = textarea.value.trim();
+      status.className = '';
+      status.textContent = '';
+      if (message.length < 5 || message.length > 1000) {
+        status.className = 'error';
+        status.textContent = 'Please enter between 5 and 1000 characters.';
+        return;
+      }
+      if (!supabase) {
+        status.className = 'error';
+        status.textContent = 'Supabase is not configured yet.';
+        return;
+      }
+      button.disabled = true;
+      button.textContent = 'Sending…';
+      try {
+        const { error } = await supabase.from('feedback').insert({ message });
+        if (error) throw error;
+        form.reset();
+        counter.textContent = '0 / 1000';
+        status.className = 'success';
+        status.textContent = 'Thank you. Your feedback was saved successfully.';
+      } catch (error) {
+        console.error('Feedback submission failed:', error);
+        status.className = 'error';
+        status.textContent = 'We could not save your feedback. Check the connection, table and access policy, then try again.';
+      } finally {
+        button.disabled = false;
+        button.textContent = 'Send feedback ↗';
+      }
+    });
+  </script>
+</body>
+</html>
