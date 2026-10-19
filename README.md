@@ -1,35 +1,44 @@
 # A World in Motion
 
-A student-curated online museum exploring how objects travelled across the world and changed meaning. Visitors must sign up and confirm their email before the museum interface is revealed.
+A student-curated online museum exploring how objects travelled across the world and changed meaning. This experimental branch adds passwordless email sign-in: visitors request a sign-in link and must open it before the museum interface is revealed.
 
-## Stack
+## App structure
 
-- **GitHub:** stores source code and change history.
-- **Vercel:** deploys the website.
-- **Supabase Auth:** manages email/password accounts and email verification.
-- **ChatGPT:** helps inspect, change, and troubleshoot the app.
-- **Leaflet + OpenStreetMap:** interactive route maps.
+- `index.html`: the museum, interactive journey maps, comparison view, and email sign-in gate
+- `AUTH-SETUP.md`: dashboard settings and end-to-end test instructions
+- `schema.sql` and `upgrade_feedback_name_email.sql`: retained from the earlier feedback-form exercise; the sign-in gate does not use the public feedback table
 
-## How access works
+## Tools
 
-1. A visitor signs up with email and password.
-2. Supabase sends a confirmation email.
-3. The visitor clicks the confirmation link and returns to the museum URL.
-4. The app checks the Supabase session and confirmed-email status before revealing the museum.
-5. Returning visitors can sign in, and signed-in visitors can sign out.
+- **GitHub:** source code and change history
+- **Vercel:** hosting and preview deployments
+- **Supabase Auth:** creates user records and verifies email sign-in links
+- **ChatGPT:** helps inspect, change, and troubleshoot the app
+- **Leaflet + OpenStreetMap:** interactive route maps
 
-Supabase Auth stores account records in its managed `auth.users` schema. **A separate public profile table is not required for this email gate.**
+## How sign-in works
 
-## Supabase setup
+1. A visitor enters their email address.
+2. Supabase Auth sends a one-time sign-in link.
+3. The visitor clicks the link and returns to the same site.
+4. Supabase establishes a session and confirms the email address.
+5. The app reveals the museum for the signed-in session.
+6. The visitor can sign out; returning to the museum requires another sign-in.
 
-Follow `AUTH-SETUP.md` before testing email verification. The required settings include the production Site URL, allowed redirect URLs, and the Email provider's confirmation setting.
+New visitors are automatically registered by Supabase Auth. A separate public profile table is not required for this demonstration; user records are maintained in Supabase's managed `auth.users` schema.
 
-This front-end demo uses the Supabase Project URL and publishable key. Never put a Supabase secret/service-role key or database password into browser code.
+## Supabase setup and testing
 
-## Workshop security boundary
+Follow [AUTH-SETUP.md](AUTH-SETUP.md) before testing. Configure the project's Site URL and allow the production and preview redirect URLs. Then test with an inbox you can access.
 
-The login gate hides the museum interface until the session is authenticated and the email is confirmed. The museum content itself is still delivered as a static page, so this is a user-experience gate rather than strong protection for confidential content. If content must be genuinely private, it needs to be served or queried through a backend with authenticated authorization.
+Supabase's default email sender has restrictions and rate limits. To send authentication email to general visitors at scale, configure a custom SMTP provider beforehand.
 
-## Note on previous feedback demo files
+This static HTML app uses the Supabase Project URL and publishable key in the browser. A publishable key is intended for frontend use, but never put a Supabase secret key, service-role key, SMTP credential, or database password into frontend code.
 
-`schema.sql` and `upgrade_feedback_name_email.sql` belong to the earlier feedback-form exercise. The museum's email sign-up gate does not use the public feedback table. Those files are retained for workshop reference and are not needed for authentication.
+## Important security boundary
+
+The login gate checks authentication in the browser, but the museum content is still included in the static HTML/JavaScript bundle. This is suitable for demonstrating account creation and email verification, not for protecting confidential content. Truly private content must be served or queried through a backend with authenticated authorization or appropriate Row Level Security policies.
+
+## Privacy
+
+The feature collects email addresses and creates user accounts. Explain why the email is collected, do not request sensitive information, and restrict access to the Supabase dashboard to people who need it.
