@@ -1,38 +1,35 @@
 # A World in Motion
 
-A student-curated online museum exploring how objects travelled across the world and changed meaning. The app includes interactive journey maps, a comparison view, and a feedback page inside the museum.
-
-## App structure
-
-- `index.html`: the full museum, interactive map journeys, journey comparison, and integrated feedback screen
-- `schema.sql`: database schema and Row Level Security policy for feedback submissions
-- `upgrade_feedback_name_email.sql`: upgrade script for an older message-only feedback table
+A student-curated online museum exploring how objects travelled across the world and changed meaning. Visitors must sign up and confirm their email before the museum interface is revealed.
 
 ## Stack
 
-- **GitHub:** version history and source code
-- **Vercel:** hosting and deployment
-- **Supabase:** PostgreSQL database and Data API used by the feedback page
-- **Leaflet + OpenStreetMap:** interactive route maps
+- **GitHub:** stores source code and change history.
+- **Vercel:** deploys the website.
+- **Supabase Auth:** manages email/password accounts and email verification.
+- **ChatGPT:** helps inspect, change, and troubleshoot the app.
+- **Leaflet + OpenStreetMap:** interactive route maps.
 
-## Feedback data flow
+## How access works
 
-The museum header's **Share feedback** button opens the feedback section without navigating to a separate website. The form collects name, email, and feedback message, then inserts them into Supabase's `public.feedback` table.
+1. A visitor signs up with email and password.
+2. Supabase sends a confirmation email.
+3. The visitor clicks the confirmation link and returns to the museum URL.
+4. The app checks the Supabase session and confirmed-email status before revealing the museum.
+5. Returning visitors can sign in, and signed-in visitors can sign out.
 
-Anonymous visitors can INSERT valid feedback only. Row Level Security remains enabled, and the public role has no SELECT, UPDATE, or DELETE privileges on the table.
+Supabase Auth stores account records in its managed `auth.users` schema. **A separate public profile table is not required for this email gate.**
 
-## Supabase setup for a fresh project
+## Supabase setup
 
-1. Create a Supabase project.
-2. Open SQL Editor and run `schema.sql`.
-3. Copy the Project URL and publishable key for the app.
-4. Replace `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `index.html` with the new project's values.
-5. Deploy through Vercel and test a feedback submission.
+Follow `AUTH-SETUP.md` before testing email verification. The required settings include the production Site URL, allowed redirect URLs, and the Email provider's confirmation setting.
 
-For an existing table with older submissions, run `upgrade_feedback_name_email.sql` instead of recreating the table. It preserves prior rows while adding the name/email fields and enforcing them for new anonymous inserts.
+This front-end demo uses the Supabase Project URL and publishable key. Never put a Supabase secret/service-role key or database password into browser code.
 
-## Security and privacy
+## Workshop security boundary
 
-The publishable key is intended for browser use. Never place a Supabase secret key, service-role key, or database password in frontend code.
+The login gate hides the museum interface until the session is authenticated and the email is confirmed. The museum content itself is still delivered as a static page, so this is a user-experience gate rather than strong protection for confidential content. If content must be genuinely private, it needs to be served or queried through a backend with authenticated authorization.
 
-Names and email addresses are personal data. Tell users why they are collected, limit dashboard access, avoid collecting sensitive information, and decide on a retention period. This workshop prototype does not verify email ownership and its anonymous insert endpoint can be spammed.
+## Note on previous feedback demo files
+
+`schema.sql` and `upgrade_feedback_name_email.sql` belong to the earlier feedback-form exercise. The museum's email sign-up gate does not use the public feedback table. Those files are retained for workshop reference and are not needed for authentication.
