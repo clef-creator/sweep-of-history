@@ -20,14 +20,67 @@ main{padding:34px 5vw 60px}.section{display:none}.section.active{display:block}.
 .feedback-layout{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(260px,.9fr);gap:20px;align-items:start}.feedback-card{padding:24px;background:var(--white);border:1px solid var(--line);border-radius:16px}.feedback-field{margin-bottom:18px}.feedback-field label{display:block;font:700 12px system-ui,sans-serif;letter-spacing:.08em;color:var(--muted);margin-bottom:8px}.feedback-field input,.feedback-field textarea{display:block;width:100%;padding:12px 13px;border:1px solid #cfc9bd;border-radius:10px;background:var(--white);font:16px system-ui,sans-serif;color:var(--ink)}.feedback-field textarea{min-height:145px;resize:vertical;line-height:1.5}.feedback-field input:focus,.feedback-field textarea:focus{outline:3px solid #9b5b3e25;border-color:var(--accent)}.feedback-privacy{font:13px/1.6 system-ui,sans-serif;color:var(--muted)}#feedbackStatus{min-height:1.5em;font:14px/1.5 system-ui,sans-serif;margin:14px 0 0;overflow-wrap:anywhere}#feedbackStatus.success{color:#216e4a}#feedbackStatus.error{color:#a12b2b}.feedback-steps{font:14px/1.7 system-ui,sans-serif;color:var(--muted)}
 @media(max-width:850px){.cards,.grid,.selectors,.feedback-layout{grid-template-columns:1fr}.swap{display:none}#map,#compareMap{height:430px}.head{align-items:start;flex-direction:column}}
 @media(max-width:560px){.card{padding:19px}.card h3{font-size:25px}#map,#compareMap{height:360px}}
+
+[hidden]{display:none!important}
+.auth-gate{min-height:100vh;display:grid;place-items:center;padding:30px 5vw;background:var(--paper)}
+.auth-shell{width:min(1120px,100%);display:grid;grid-template-columns:minmax(0,1.08fr) minmax(330px,.72fr);gap:clamp(28px,5vw,72px);align-items:center}
+.auth-intro h1{font-size:clamp(44px,6vw,76px);font-weight:500;line-height:.98;letter-spacing:-.04em;margin:10px 0}
+.auth-intro .lead{font-size:21px;line-height:1.45}
+.auth-small{font:14px/1.6 system-ui,sans-serif;color:var(--muted);margin-top:26px}
+.auth-card{background:var(--white);border:1px solid var(--line);border-radius:18px;padding:clamp(22px,3vw,34px);box-shadow:0 8px 25px #24323812}
+.auth-tabs{display:flex;gap:6px;background:#f0ece2;padding:5px;border-radius:999px;margin-bottom:25px}
+.auth-tab{border:0;border-radius:999px;flex:1;padding:10px 12px;background:transparent;font:700 12px system-ui,sans-serif;color:var(--muted);cursor:pointer}
+.auth-tab.active{background:var(--white);color:var(--ink);box-shadow:0 1px 4px #24323812}
+.auth-card h2{font-size:27px;margin-bottom:7px}
+.auth-copy,.auth-privacy{font:13px/1.6 system-ui,sans-serif;color:var(--muted)}
+.auth-copy{margin:0 0 22px}.auth-field{margin:0 0 16px}
+.auth-field label{display:block;font:700 11px system-ui,sans-serif;letter-spacing:.09em;color:var(--muted);margin:0 0 7px}
+.auth-field input{display:block;width:100%;border:1px solid #cfc9bd;border-radius:10px;background:#fffdf8;padding:12px 13px;color:var(--ink);font:15px system-ui,sans-serif}
+.auth-field input:focus{outline:3px solid #9b5b3e25;border-color:var(--accent)}
+.auth-submit{width:100%;background:var(--ink);color:white;border-color:var(--ink);padding:13px 16px;font:700 12px system-ui,sans-serif}
+.auth-submit:hover{background:#3d5055;color:white}.auth-submit:disabled{opacity:.65;cursor:wait}
+.auth-status{min-height:1.5em;font:13px/1.5 system-ui,sans-serif;margin:14px 0 0;overflow-wrap:anywhere}
+.auth-status.success{color:#216e4a}.auth-status.error{color:#a12b2b}
+.auth-privacy{font-size:11px;border-top:1px solid var(--line);padding-top:15px;margin:19px 0 0}
+.account-bar{display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px;font:12px system-ui,sans-serif;color:var(--muted)}
+.account-bar .btn{margin-left:auto}
+@media(max-width:800px){.auth-shell{grid-template-columns:1fr;max-width:520px;gap:24px}.auth-intro .lead{font-size:18px}.auth-intro .argument{margin-top:14px}.auth-gate{align-items:start;padding:26px 5vw}.auth-card{padding:23px}}
+
 </style></head>
 <body>
-<header><div class="wrap"><div class="eyebrow">A student-curated online museum</div><h1>A World in Motion</h1><p class="lead">Four objects. Four routes. Four ways of seeing how movement changes meaning.</p><div class="argument">“A map is an argument, not just decoration.”</div><div style="display:flex;gap:12px;align-items:center;flex-wrap:wrap;margin-top:20px"><button class="btn" type="button" onclick="openFeedback()">Share feedback ↗</button><span class="note sans" style="font-size:12px">Help us improve the museum</span></div></div></header>
+
+<section id="authGate" class="auth-gate" aria-labelledby="authHeading">
+  <div class="auth-shell">
+    <div class="auth-intro">
+      <div class="eyebrow">A student-curated online museum</div>
+      <h1 id="authHeading">A World in Motion</h1>
+      <p class="lead">Four objects. Four routes. Four ways of seeing how movement changes meaning.</p>
+      <div class="argument">“A map is an argument, not just decoration.”</div>
+      <p class="auth-small">Verify your email to explore the journeys and compare the routes.</p>
+    </div>
+    <div class="auth-card">
+      <h2 id="authTitle">Explore the museum</h2>
+      <p id="authIntro" class="auth-copy">Enter your email address. We’ll send you a one-time sign-in link. Clicking it verifies your email and opens the museum.</p>
+      <form id="authForm">
+        <div class="auth-field">
+          <label for="authEmail">EMAIL ADDRESS</label>
+          <input id="authEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
+        </div>
+        <button class="btn auth-submit" id="authSubmit" type="submit">Send sign-in link</button>
+        <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
+      </form>
+      <p class="auth-privacy">We use your email to create or access your museum account. You must be able to open this inbox to enter. Do not use confidential information in this workshop app.</p>
+    </div>
+  </div>
+</section>
+<div id="museumApp" hidden>
+
+<header><div class="wrap"><div class="eyebrow">A student-curated online museum</div><h1>A World in Motion</h1><p class="lead">Four objects. Four routes. Four ways of seeing how movement changes meaning.</p><div class="argument">“A map is an argument, not just decoration.”</div><div class="account-bar"><span>Signed in as <strong id="signedInEmail"></strong></span><button class="btn" type="button" id="signOutBtn">Sign out</button></div></div></header>
 <main class="wrap">
 <section id="home" class="section active"><div class="head"><div><h2>The journeys</h2><p class="note">Follow an object across borders, then ask what changed when it arrived.</p></div><button class="btn" onclick="compare()">Compare two journeys →</button></div><div id="cards" class="cards"></div></section>
 <section id="journey" class="section"><div class="top"><button class="btn" onclick="home()">← All journeys</button><button class="btn" onclick="compare()">Compare journeys →</button></div><div id="journeyContent"></div></section>
 <section id="compare" class="section"><div class="top"><button class="btn" onclick="home()">← All journeys</button></div><div class="head"><div><h2>Put two journeys side by side</h2><p class="note">Compare routes and the argument each journey makes.</p></div></div><div class="compare"><div class="selectors"><div><label>Journey one</label><select id="a" onchange="renderCompare()"></select></div><div class="swap">vs.</div><div><label>Journey two</label><select id="b" onchange="renderCompare()"></select></div></div></div><div class="legend" id="legend"></div><div class="grid"><div id="compareMap"></div><div class="args" id="args"></div></div></section>
-<section id="feedback" class="section"><div class="top"><button class="btn" type="button" onclick="home()">← Back to museum</button></div><div class="head"><div><h2>Share feedback</h2><p class="note">Tell us what worked, what was confusing, or what would make this museum better.</p></div></div><div class="feedback-layout"><form id="feedbackForm" class="feedback-card"><div class="feedback-field"><label for="feedbackName">NAME</label><input id="feedbackName" name="name" type="text" autocomplete="name" maxlength="120" required placeholder="Your name"></div><div class="feedback-field"><label for="feedbackEmail">EMAIL ADDRESS</label><input id="feedbackEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com"></div><div class="feedback-field"><label for="feedbackMessage">YOUR FEEDBACK</label><textarea id="feedbackMessage" name="message" minlength="5" maxlength="1000" required placeholder="I think this museum could be better if…"></textarea><div class="meta" id="feedbackCounter" style="text-align:right;margin-top:6px">0 / 1000</div></div><p class="feedback-privacy">We collect your name and email so the museum team can understand the feedback and follow up if needed. Please do not include sensitive information.</p><button class="btn" type="submit" id="feedbackSubmit">Send feedback ↗</button><p id="feedbackStatus" role="status" aria-live="polite"></p></form><aside class="feedback-card"><div class="eyebrow">What happens next?</div><h2 style="font-size:26px;margin:10px 0">Your feedback helps shape the next version.</h2><div class="feedback-steps"><p><strong>1. Submit</strong><br>Your message is sent to the museum's Supabase database.</p><p><strong>2. Store</strong><br>The app can add new feedback, but visitors cannot browse other people's submissions.</p><p><strong>3. Improve</strong><br>The team reviews responses privately in the Supabase dashboard.</p></div><p class="feedback-privacy">Workshop prototype: names and email addresses are personal data. Only submit details you are comfortable sharing with the app owner.</p></aside></div></section>
+
 </main>
 <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
 <script>
@@ -63,15 +116,6 @@ let map=null,cm=null;
 function tag(k){return '<span class="tag" style="background:'+K[k]+'">'+k+'</span>'}
 function home(){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));homeEl().classList.add("active");if(map){map.remove();map=null}if(cm){cm.remove();cm=null}scrollTo(0,0)}
 function homeEl(){return document.getElementById("home")}
-function openFeedback(){document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById("feedback").classList.add("active");if(map){map.remove();map=null}if(cm){cm.remove();cm=null}scrollTo(0,0)}
-const SUPABASE_URL="https://cbvaouhameozfulmvtyv.supabase.co";
-const SUPABASE_PUBLISHABLE_KEY="sb_publishable_xwoPz8Z5i_p3u6rLX2giJA_o0R_XfhT";
-const feedbackForm=document.getElementById("feedbackForm");
-const feedbackMessage=document.getElementById("feedbackMessage");
-const feedbackStatus=document.getElementById("feedbackStatus");
-const feedbackSubmit=document.getElementById("feedbackSubmit");
-feedbackMessage.addEventListener("input",()=>{document.getElementById("feedbackCounter").textContent=feedbackMessage.value.length+" / 1000"});
-feedbackForm.addEventListener("submit",async(event)=>{event.preventDefault();if(!feedbackForm.checkValidity()){feedbackForm.reportValidity();return}const name=document.getElementById("feedbackName").value.trim();const email=document.getElementById("feedbackEmail").value.trim().toLowerCase();const message=feedbackMessage.value.trim();feedbackStatus.className="";feedbackStatus.textContent="";if(!name||name.length>120||email.length>254||message.length<5||message.length>1000){feedbackStatus.className="error";feedbackStatus.textContent="Please check your name, email address, and feedback length.";return}feedbackSubmit.disabled=true;feedbackSubmit.textContent="Sending…";try{const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2");const client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);const {error}=await client.from("feedback").insert({name,email,message});if(error)throw error;feedbackForm.reset();document.getElementById("feedbackCounter").textContent="0 / 1000";feedbackStatus.className="success";feedbackStatus.textContent="Thank you. Your feedback has been saved."}catch(error){console.error("Feedback submission failed:",error);feedbackStatus.className="error";feedbackStatus.textContent="We could not save your feedback. Please try again later."}finally{feedbackSubmit.disabled=false;feedbackSubmit.textContent="Send feedback ↗"}});
 function show(id){const j=J.find(x=>x.id===id);document.querySelectorAll(".section").forEach(x=>x.classList.remove("active"));document.getElementById("journey").classList.add("active");document.getElementById("journeyContent").innerHTML='<div><h2 class="title">'+j.name+' '+tag(j.kind)+'</h2><p class="meta">Made by '+j.maker+'</p><div class="idea"><strong>What the journey reveals:</strong> '+j.reveals+'</div><div class="grid"><div id="map"></div><div class="stops">'+j.stops.map((s,i)=>'<div class="stop"><div class="num">'+(i+1)+'</div><div><h4>'+s[0]+'</h4><div class="when">'+s[3]+'</div><p class="why">'+s[4]+'</p><div class="source">'+s[5]+'</div></div></div>').join("")+'</div></div><div class="so"><h3>So what?</h3><p>'+j.so+'</p></div></div>';if(map)map.remove();setTimeout(()=>draw(j),30);scrollTo(0,0)}
 function base(id){return L.map(id,{worldCopyJump:true}).setView([25,30],2).addLayer(L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",{maxZoom:19,attribution:"&copy; OpenStreetMap contributors"}))}
 function icon(n,c){return L.divIcon({className:"",html:'<div style="width:30px;height:30px;border-radius:50%;display:grid;place-items:center;background:'+c+';color:white;border:2px solid white;box-shadow:0 2px 7px #0005;font:700 12px system-ui">'+n+'</div>',iconSize:[30,30],iconAnchor:[15,15]})}
@@ -80,4 +124,100 @@ function compare(){document.querySelectorAll(".section").forEach(x=>x.classList.
 function renderCompare(){const a=J.find(x=>x.id==document.getElementById("a").value),b=J.find(x=>x.id==document.getElementById("b").value);if(!a||!b)return;document.getElementById("legend").innerHTML='<span><i class="line" style="background:'+K[a.kind]+'"></i>'+a.name+'</span><span><i class="line" style="background:'+K[b.kind]+'"></i>'+b.name+'</span>';document.getElementById("args").innerHTML='<div class="arg"><h3>'+a.name+'</h3><p>'+a.reveals+'</p></div><div class="arg"><h3>'+b.name+'</h3><p>'+b.reveals+'</p></div>';if(cm)cm.remove();cm=base("compareMap");let all=[];[a,b].forEach(j=>{const c=j.stops.map(s=>[s[1],s[2]]);all.push(...c);L.polyline(c,{color:K[j.kind],weight:4}).addTo(cm);j.stops.forEach((s,i)=>L.marker([s[1],s[2]],{icon:icon(i+1,K[j.kind])}).addTo(cm).bindPopup("<b>"+j.name+" · Stop "+(i+1)+"</b><br>"+s[0]+"<br>"+s[3]))});cm.fitBounds(L.latLngBounds(all),{padding:[35,35]})}
 document.getElementById("cards").innerHTML=J.map((j,i)=>'<button class="card" onclick="show(\''+j.id+'\')"><div class="meta">JOURNEY '+String(i+1).padStart(2,"0")+' · '+tag(j.kind)+'</div><h3>'+j.name+'</h3><div class="meta">Made by '+j.maker+'</div><p class="reveals">'+j.reveals+'</p><div style="color:#9b5b3e;font:700 13px system-ui">Open journey →</div></button>').join("");
 const opts=J.map(j=>'<option value="'+j.id+'">'+j.name+' · '+j.maker+'</option>').join("");document.getElementById("a").innerHTML=opts;document.getElementById("b").innerHTML=opts;document.getElementById("b").value=J[1].id;
-</script></body></html>
+
+const SUPABASE_URL="https://cbvaouhameozfulmvtyv.supabase.co";
+const SUPABASE_PUBLISHABLE_KEY="sb_publishable_xwoPz8Z5i_p3u6rLX2giJA_o0R_XfhT";
+(async function setupEmailGate(){
+  const gate=document.getElementById("authGate");
+  const museum=document.getElementById("museumApp");
+  const form=document.getElementById("authForm");
+  const emailInput=document.getElementById("authEmail");
+  const status=document.getElementById("authStatus");
+  const submit=document.getElementById("authSubmit");
+  const signOut=document.getElementById("signOutBtn");
+  const signedInEmail=document.getElementById("signedInEmail");
+  let client;
+
+  function setStatus(message,type=""){
+    status.textContent=message;
+    status.className="auth-status"+(type?" "+type:"");
+  }
+
+  function unlock(session){
+    const user=session&&session.user;
+    const confirmed=!!(user&&(user.email_confirmed_at||user.confirmed_at));
+    gate.hidden=confirmed;
+    museum.hidden=!confirmed;
+    if(confirmed){
+      signedInEmail.textContent=user.email||"your account";
+      document.title="A World in Motion";
+    }
+  }
+
+  form.addEventListener("submit",async(event)=>{
+    event.preventDefault();
+    if(!client){
+      setStatus("The sign-in service could not start. Refresh and try again.","error");
+      return;
+    }
+    if(!form.checkValidity()){form.reportValidity();return;}
+    const email=emailInput.value.trim().toLowerCase();
+    if(!email){setStatus("Enter a valid email address.","error");return;}
+    submit.disabled=true;
+    submit.textContent="Sending link…";
+    setStatus("");
+    try{
+      const {error}=await client.auth.signInWithOtp({
+        email,
+        options:{
+          emailRedirectTo:window.location.origin,
+          shouldCreateUser:true
+        }
+      });
+      if(error)throw error;
+      form.reset();
+      setStatus("Check your inbox and click the sign-in link. Once you verify your email, this page will open the museum.","success");
+    }catch(error){
+      console.error("Could not send the email sign-in link:",error);
+      setStatus("We could not send a sign-in link. Check the address and try again. If this continues, the email service may need configuration.","error");
+    }finally{
+      submit.disabled=false;
+      submit.textContent="Send sign-in link";
+    }
+  });
+
+  signOut.addEventListener("click",async()=>{
+    if(!client)return;
+    signOut.disabled=true;
+    try{
+      const {error}=await client.auth.signOut();
+      if(error)throw error;
+      unlock(null);
+      setStatus("You have signed out.","success");
+      window.scrollTo(0,0);
+    }catch(error){
+      console.error("Could not sign out:",error);
+      setStatus("Sign out failed. Please refresh and try again.","error");
+    }finally{
+      signOut.disabled=false;
+    }
+  });
+
+  try{
+    const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2");
+    client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+      auth:{detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}
+    });
+    const {data,error}=await client.auth.getSession();
+    if(error)throw error;
+    unlock(data.session);
+    client.auth.onAuthStateChange((_event,session)=>unlock(session));
+  }catch(error){
+    console.error("Could not initialise Supabase Auth:",error);
+    setStatus("Sign-in could not start. Please refresh later or contact the site owner.","error");
+  }
+})();
+
+</script>
+</div>
+</body></html>

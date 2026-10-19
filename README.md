@@ -1,38 +1,44 @@
 # A World in Motion
 
-A student-curated online museum exploring how objects travelled across the world and changed meaning. The app includes interactive journey maps, a comparison view, and a feedback page inside the museum.
+A student-curated online museum exploring how objects travelled across the world and changed meaning. This experimental branch adds passwordless email sign-in: visitors request a sign-in link and must open it before the museum interface is revealed.
 
 ## App structure
 
-- `index.html`: the full museum, interactive map journeys, journey comparison, and integrated feedback screen
-- `schema.sql`: database schema and Row Level Security policy for feedback submissions
-- `upgrade_feedback_name_email.sql`: upgrade script for an older message-only feedback table
+- `index.html`: the museum, interactive journey maps, comparison view, and email sign-in gate
+- `AUTH-SETUP.md`: dashboard settings and end-to-end test instructions
+- `schema.sql` and `upgrade_feedback_name_email.sql`: retained from the earlier feedback-form exercise; the sign-in gate does not use the public feedback table
 
-## Stack
+## Tools
 
-- **GitHub:** version history and source code
-- **Vercel:** hosting and deployment
-- **Supabase:** PostgreSQL database and Data API used by the feedback page
+- **GitHub:** source code and change history
+- **Vercel:** hosting and preview deployments
+- **Supabase Auth:** creates user records and verifies email sign-in links
+- **ChatGPT:** helps inspect, change, and troubleshoot the app
 - **Leaflet + OpenStreetMap:** interactive route maps
 
-## Feedback data flow
+## How sign-in works
 
-The museum header's **Share feedback** button opens the feedback section without navigating to a separate website. The form collects name, email, and feedback message, then inserts them into Supabase's `public.feedback` table.
+1. A visitor enters their email address.
+2. Supabase Auth sends a one-time sign-in link.
+3. The visitor clicks the link and returns to the same site.
+4. Supabase establishes a session and confirms the email address.
+5. The app reveals the museum for the signed-in session.
+6. The visitor can sign out; returning to the museum requires another sign-in.
 
-Anonymous visitors can INSERT valid feedback only. Row Level Security remains enabled, and the public role has no SELECT, UPDATE, or DELETE privileges on the table.
+New visitors are automatically registered by Supabase Auth. A separate public profile table is not required for this demonstration; user records are maintained in Supabase's managed `auth.users` schema.
 
-## Supabase setup for a fresh project
+## Supabase setup and testing
 
-1. Create a Supabase project.
-2. Open SQL Editor and run `schema.sql`.
-3. Copy the Project URL and publishable key for the app.
-4. Replace `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `index.html` with the new project's values.
-5. Deploy through Vercel and test a feedback submission.
+Follow [AUTH-SETUP.md](AUTH-SETUP.md) before testing. Configure the project's Site URL and allow the production and preview redirect URLs. Then test with an inbox you can access.
 
-For an existing table with older submissions, run `upgrade_feedback_name_email.sql` instead of recreating the table. It preserves prior rows while adding the name/email fields and enforcing them for new anonymous inserts.
+Supabase's default email sender has restrictions and rate limits. To send authentication email to general visitors at scale, configure a custom SMTP provider beforehand.
 
-## Security and privacy
+This static HTML app uses the Supabase Project URL and publishable key in the browser. A publishable key is intended for frontend use, but never put a Supabase secret key, service-role key, SMTP credential, or database password into frontend code.
 
-The publishable key is intended for browser use. Never place a Supabase secret key, service-role key, or database password in frontend code.
+## Important security boundary
 
-Names and email addresses are personal data. Tell users why they are collected, limit dashboard access, avoid collecting sensitive information, and decide on a retention period. This workshop prototype does not verify email ownership and its anonymous insert endpoint can be spammed.
+The login gate checks authentication in the browser, but the museum content is still included in the static HTML/JavaScript bundle. This is suitable for demonstrating account creation and email verification, not for protecting confidential content. Truly private content must be served or queried through a backend with authenticated authorization or appropriate Row Level Security policies.
+
+## Privacy
+
+The feature collects email addresses and creates user accounts. Explain why the email is collected, do not request sensitive information, and restrict access to the Supabase dashboard to people who need it.
