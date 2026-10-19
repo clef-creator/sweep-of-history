@@ -56,28 +56,20 @@ main{padding:34px 5vw 60px}.section{display:none}.section.active{display:block}.
       <h1 id="authHeading">A World in Motion</h1>
       <p class="lead">Four objects. Four routes. Four ways of seeing how movement changes meaning.</p>
       <div class="argument">“A map is an argument, not just decoration.”</div>
-      <p class="auth-small">Sign in to explore the journeys and compare the routes.</p>
+      <p class="auth-small">Verify your email to explore the journeys and compare the routes.</p>
     </div>
     <div class="auth-card">
-      <div class="auth-tabs" role="group" aria-label="Choose account action">
-        <button id="signupTab" class="auth-tab active" type="button">Sign up</button>
-        <button id="signinTab" class="auth-tab" type="button">Sign in</button>
-      </div>
-      <h2 id="authTitle">Create your account</h2>
-      <p id="authIntro" class="auth-copy">Use your email address to create an account. We will send you a verification link before opening the museum.</p>
+      <h2 id="authTitle">Explore the museum</h2>
+      <p id="authIntro" class="auth-copy">Enter your email address. We’ll send you a one-time sign-in link. Clicking it verifies your email and opens the museum.</p>
       <form id="authForm">
         <div class="auth-field">
           <label for="authEmail">EMAIL ADDRESS</label>
           <input id="authEmail" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="you@example.com">
         </div>
-        <div class="auth-field">
-          <label for="authPassword">PASSWORD</label>
-          <input id="authPassword" name="password" type="password" autocomplete="new-password" minlength="8" required placeholder="At least 8 characters">
-        </div>
-        <button class="btn auth-submit" id="authSubmit" type="submit">Create account</button>
+        <button class="btn auth-submit" id="authSubmit" type="submit">Send sign-in link</button>
         <p id="authStatus" class="auth-status" role="status" aria-live="polite"></p>
       </form>
-      <p class="auth-privacy">Your email is used for account verification and sign-in. Do not use confidential information in this workshop app.</p>
+      <p class="auth-privacy">We use your email to create or access your museum account. You must be able to open this inbox to enter. Do not use confidential information in this workshop app.</p>
     </div>
   </div>
 </section>
@@ -140,86 +132,60 @@ const SUPABASE_PUBLISHABLE_KEY="sb_publishable_xwoPz8Z5i_p3u6rLX2giJA_o0R_XfhT";
   const museum=document.getElementById("museumApp");
   const form=document.getElementById("authForm");
   const emailInput=document.getElementById("authEmail");
-  const passwordInput=document.getElementById("authPassword");
   const status=document.getElementById("authStatus");
   const submit=document.getElementById("authSubmit");
   const signOut=document.getElementById("signOutBtn");
   const signedInEmail=document.getElementById("signedInEmail");
-  const signupTab=document.getElementById("signupTab");
-  const signinTab=document.getElementById("signinTab");
-  let mode="signup";
   let client;
+
   function setStatus(message,type=""){
     status.textContent=message;
     status.className="auth-status"+(type?" "+type:"");
   }
-  function setMode(next){
-    mode=next;
-    const signup=mode==="signup";
-    signupTab.classList.toggle("active",signup);
-    signinTab.classList.toggle("active",!signup);
-    document.getElementById("authTitle").textContent=signup?"Create your account":"Welcome back";
-    document.getElementById("authIntro").textContent=signup
-      ?"Use your email address to create an account. We will send you a verification link before opening the museum."
-      :"Sign in with the email and password you used when creating your account.";
-    submit.textContent=signup?"Create account":"Sign in";
-    passwordInput.autocomplete=signup?"new-password":"current-password";
-    setStatus("");
-  }
+
   function unlock(session){
     const user=session&&session.user;
     const confirmed=!!(user&&(user.email_confirmed_at||user.confirmed_at));
     gate.hidden=confirmed;
     museum.hidden=!confirmed;
-    document.body.style.overflow=confirmed?"":"hidden";
     if(confirmed){
       signedInEmail.textContent=user.email||"your account";
-      // Keep screen-reader focus sensible after confirmation or sign-in.
       document.title="A World in Motion";
     }
   }
-  signupTab.addEventListener("click",()=>setMode("signup"));
-  signinTab.addEventListener("click",()=>setMode("signin"));
+
   form.addEventListener("submit",async(event)=>{
     event.preventDefault();
-    if(!client){setStatus("The sign-in service could not start. Refresh and try again.","error");return;}
+    if(!client){
+      setStatus("The sign-in service could not start. Refresh and try again.","error");
+      return;
+    }
     if(!form.checkValidity()){form.reportValidity();return;}
     const email=emailInput.value.trim().toLowerCase();
-    const password=passwordInput.value;
+    if(!email){setStatus("Enter a valid email address.","error");return;}
     submit.disabled=true;
-    submit.textContent=mode==="signup"?"Creating account…":"Signing in…";
+    submit.textContent="Sending link…";
     setStatus("");
     try{
-      if(mode==="signup"){
-        const {data,error}=await client.auth.signUp({
-          email,password,
-          options:{emailRedirectTo:window.location.origin}
-        });
-        if(error)throw error;
-        if(data.session && (data.user?.email_confirmed_at||data.user?.confirmed_at)){
-          unlock(data.session);
-          setStatus("Email verified. Welcome to the museum.","success");
-        }else{
-          setStatus("Check your inbox and click the verification link. The museum will open after your email is confirmed.","success");
+      const {error}=await client.auth.signInWithOtp({
+        email,
+        options:{
+          emailRedirectTo:window.location.origin,
+          shouldCreateUser:true
         }
-      }else{
-        const {data,error}=await client.auth.signInWithPassword({email,password});
-        if(error)throw error;
-        if(data.session && (data.user?.email_confirmed_at||data.user?.confirmed_at)){
-          unlock(data.session);
-          setStatus("Signed in successfully.","success");
-        }else{
-          setStatus("Please verify your email address before entering the museum.","error");
-        }
-      }
+      });
+      if(error)throw error;
+      form.reset();
+      setStatus("Check your inbox and click the sign-in link. Once you verify your email, this page will open the museum.","success");
     }catch(error){
-      console.error("Authentication error:",error);
-      setStatus(error?.message||"We could not complete that request. Check your details and try again.","error");
+      console.error("Could not send the email sign-in link:",error);
+      setStatus("We could not send a sign-in link. Check the address and try again. If this continues, the email service may need configuration.","error");
     }finally{
       submit.disabled=false;
-      submit.textContent=mode==="signup"?"Create account":"Sign in";
+      submit.textContent="Send sign-in link";
     }
   });
+
   signOut.addEventListener("click",async()=>{
     if(!client)return;
     signOut.disabled=true;
@@ -227,16 +193,21 @@ const SUPABASE_PUBLISHABLE_KEY="sb_publishable_xwoPz8Z5i_p3u6rLX2giJA_o0R_XfhT";
       const {error}=await client.auth.signOut();
       if(error)throw error;
       unlock(null);
-      setMode("signin");
       setStatus("You have signed out.","success");
       window.scrollTo(0,0);
     }catch(error){
+      console.error("Could not sign out:",error);
       setStatus("Sign out failed. Please refresh and try again.","error");
-    }finally{signOut.disabled=false;}
+    }finally{
+      signOut.disabled=false;
+    }
   });
+
   try{
     const {createClient}=await import("https://esm.sh/@supabase/supabase-js@2");
-    client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY);
+    client=createClient(SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY,{
+      auth:{detectSessionInUrl:true,persistSession:true,autoRefreshToken:true}
+    });
     const {data,error}=await client.auth.getSession();
     if(error)throw error;
     unlock(data.session);
