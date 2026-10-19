@@ -1,43 +1,38 @@
-# Feedback Loop: GitHub + Vercel + Supabase
+# A World in Motion
 
-A tiny static HTML demo for the CLeF AI-assisted development workshop. It collects anonymous feedback and saves each message in Supabase. The public app cannot read submitted messages.
+A student-curated online museum exploring how objects travelled across the world and changed meaning. The app includes interactive journey maps, a comparison view, and a feedback page inside the museum.
 
-## 1. Create the Supabase table
+## App structure
+
+- `index.html`: the full museum, interactive map journeys, journey comparison, and integrated feedback screen
+- `schema.sql`: database schema and Row Level Security policy for feedback submissions
+- `upgrade_feedback_name_email.sql`: upgrade script for an older message-only feedback table
+
+## Stack
+
+- **GitHub:** version history and source code
+- **Vercel:** hosting and deployment
+- **Supabase:** PostgreSQL database and Data API used by the feedback page
+- **Leaflet + OpenStreetMap:** interactive route maps
+
+## Feedback data flow
+
+The museum header's **Share feedback** button opens the feedback section without navigating to a separate website. The form collects name, email, and feedback message, then inserts them into Supabase's `public.feedback` table.
+
+Anonymous visitors can INSERT valid feedback only. Row Level Security remains enabled, and the public role has no SELECT, UPDATE, or DELETE privileges on the table.
+
+## Supabase setup for a fresh project
 
 1. Create a Supabase project.
-2. Open the project's SQL Editor.
-3. Paste and run `schema.sql`.
-4. Confirm that the `feedback` table is present.
+2. Open SQL Editor and run `schema.sql`.
+3. Copy the Project URL and publishable key for the app.
+4. Replace `SUPABASE_URL` and `SUPABASE_PUBLISHABLE_KEY` in `index.html` with the new project's values.
+5. Deploy through Vercel and test a feedback submission.
 
-The SQL enables Row Level Security and permits anonymous INSERT only. It does not grant public SELECT, UPDATE, or DELETE access.
+For an existing table with older submissions, run `upgrade_feedback_name_email.sql` instead of recreating the table. It preserves prior rows while adding the name/email fields and enforcing them for new anonymous inserts.
 
-## 2. Configure the app
+## Security and privacy
 
-In Supabase, copy the **Project URL** and **publishable key** (usually begins with `sb_publishable_`). The app's `index.html` is already configured with this project's Project URL and publishable key. If you fork or reuse the demo for another project, replace:
+The publishable key is intended for browser use. Never place a Supabase secret key, service-role key, or database password in frontend code.
 
-A publishable key is intended for browser use. **Never place a Supabase secret key or service-role key in frontend code.** Database access is controlled by grants and RLS policies.
-
-## 3. Deploy on Vercel
-
-1. Import this GitHub repository in Vercel.
-2. Select the `workshop-feedback-demo` branch.
-3. This is a plain HTML site. Choose the **Other** framework preset if prompted; no build command or output directory is required.
-4. Deploy and open the generated URL.
-
-## 4. Verify the end-to-end flow
-
-1. Open the deployed URL.
-2. Submit a feedback message of at least five characters.
-3. In Supabase, open **Table Editor → feedback**.
-4. Confirm that the new row appears.
-
-## Troubleshooting
-
-- **Setup needed**: placeholders remain in `index.html`; add the URL and publishable key.
-- **Invalid API key**: confirm that the URL and publishable key were copied from the same Supabase project.
-- **Permission/RLS error**: confirm that `schema.sql` ran successfully, RLS is enabled, and the anonymous INSERT policy and grant exist.
-- **Vercel 404**: ensure `index.html` is in the deployment root and the correct branch was imported.
-
-## Security note
-
-This is a classroom prototype, not a production feedback service. The anonymous insert endpoint can be spammed. Submitted messages are not publicly readable through the app, but anyone can submit messages. Do not collect names, email addresses, confidential or sensitive information. A production app should add appropriate abuse prevention, monitoring and retention controls.
+Names and email addresses are personal data. Tell users why they are collected, limit dashboard access, avoid collecting sensitive information, and decide on a retention period. This workshop prototype does not verify email ownership and its anonymous insert endpoint can be spammed.
